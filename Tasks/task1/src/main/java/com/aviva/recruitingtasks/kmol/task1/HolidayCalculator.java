@@ -20,60 +20,82 @@ public class HolidayCalculator {
 	}
 
 	public List<Employee> getWorkingEmployees(LocalDate dateFrom, LocalDate dateTo) {
-		List<Employee> empsIsNotInHol = new ArrayList<Employee>();
-		for (Employee employee : this.employees) {
-			boolean isWorking = true;
-			for (Holiday holiday : this.holidays) {
-				if (holiday != null) {
-					if (holiday.getEmployee().equals(employee) && holiday.isIntersecting(dateFrom, dateTo)) {
-						isWorking = false;
-						break;
-					}
+		List<Employee> workingEmployees = new ArrayList<Employee>();
+		Employee empNotInHolidays = null;
+		if (this.employees != null) {
+			for (Employee employee : this.employees) {
+				empNotInHolidays = isInHolidays(employee, dateFrom, dateTo);
+				if (empNotInHolidays != null) {
+					workingEmployees.add(empNotInHolidays);
 				}
 			}
-			if (isWorking) {
-				empsIsNotInHol.add(employee);
-			}
-
 		}
-		return empsIsNotInHol;
+		return workingEmployees;
 	}
 
 	public Month getHolidayMonth() {
-	    Month bestMonth = null;
-	    int maxHolidays = -1;
+		Month bestMonth = null;
+		int maxHolidays = -1;
+		for (Month month : Month.values()) {
+			int countMonthHolidays = 0;
+			countMonthHolidays = this.monthlyMaxHolidays(month);
+			if (countMonthHolidays > maxHolidays) {
+				bestMonth = month;
+				maxHolidays = countMonthHolidays;
+			}
+		}
+		return bestMonth;
+	}
 
-	    for (Month month : Month.values()) {
-	        int holidays = 0;
+	private List<Holiday> getEmplHolidays(Employee employee, List<Holiday> allHolidays) {
+		List<Holiday> holidays = new ArrayList<Holiday>();
+		if (allHolidays != null && employee != null) {
+			for (Holiday holiday : allHolidays) {
+				if (holiday.getEmployee().equals(employee)) {
+					holidays.add(holiday);
+				}
+			}
+		}
+		return holidays;
+	}
 
-	        for (Employee employee : this.employees) {
-	            for (Holiday holiday : this.holidays) {
-	                if ((holiday != null) && holiday.getEmployee().equals(employee)) {
-	                    LocalDate dateFrom = LocalDate.of(holiday.getDateFrom().getYear(), month, 1);
-                        LocalDate dateTo = dateFrom.with(TemporalAdjusters.lastDayOfMonth());
-                        if (holiday.isIntersecting(dateFrom, dateTo)) {
-                            holidays++;
-                            break;
-                        }
+	private Employee isInHolidays(Employee NameEmployee, LocalDate dateFrom, LocalDate dateTo) {
+		Employee emplIsNotInHol = null;
+		List<Holiday> emplHolidays = new ArrayList<Holiday>();
+		emplHolidays = this.getEmplHolidays(NameEmployee, this.holidays);
+		boolean isWorking = true;
+		for (Holiday holiday : emplHolidays) {
+			isWorking = !holiday.isIntersecting(dateFrom, dateTo);
+		}
+		if (isWorking) {
+			emplIsNotInHol = NameEmployee;
+		}
+		return emplIsNotInHol;
+	}
 
-                        if (holiday.getDateFrom().getYear() != holiday.getDateTo().getYear()) {
-                            dateFrom = LocalDate.of(holiday.getDateTo().getYear(), month, 1);
-                            dateTo = dateFrom.with(TemporalAdjusters.lastDayOfMonth());
-                            if (holiday.isIntersecting(dateFrom, dateTo)) {
-                                holidays++;
-                                break;
-                            }
-                        }
-	                }
-	            }
-	        }
+	private int monthlyMaxHolidays(Month month) {
+		int maxHolidays = 0;
+		if (this.employees != null && this.holidays != null)
+			for (Employee employee : this.employees) {
+				List<Holiday> emplHolidays = this.getEmplHolidays(employee, this.holidays);
+				for (Holiday holiday : emplHolidays) {
+					LocalDate dateFrom = LocalDate.of(holiday.getDateFrom().getYear(), month, 1);
+					LocalDate dateTo = dateFrom.with(TemporalAdjusters.lastDayOfMonth());
+					maxHolidays = this.incrementIfIntersecHol(holiday, dateFrom, dateTo, maxHolidays);
+					if (holiday.getDateFrom().getYear() != holiday.getDateTo().getYear()) {
+						dateFrom = LocalDate.of(holiday.getDateTo().getYear(), month, 1);
+						dateTo = dateFrom.with(TemporalAdjusters.lastDayOfMonth());
+						maxHolidays = this.incrementIfIntersecHol(holiday, dateFrom, dateTo, maxHolidays);
+					}
+				}
+			}
+		return maxHolidays;
+	}
 
-	        if (holidays > maxHolidays) {
-                bestMonth = month;
-	            maxHolidays = holidays;
-	        }
-	    }
-
-	    return bestMonth;
+	private int incrementIfIntersecHol(Holiday holiday, LocalDate dateFrom, LocalDate dateTo, int countHolidays) {
+		if (holiday.isIntersecting(dateFrom, dateTo)) {
+			countHolidays++;
+		}
+		return countHolidays;
 	}
 }

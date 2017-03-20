@@ -14,17 +14,11 @@ import com.aviva.recruitingtasks.kmol.task1.model.Holiday;
 
 public class SampleAvivaHolidays {
 
-	private static final List<Holiday> JOHN_HOLIDAYS = Arrays.asList(new Holiday[]
-		{
-			new Holiday(JOHN, LocalDate.of(2017, Month.FEBRUARY, 1), LocalDate.of(2017, Month.FEBRUARY, 1))
-		}
-	);
+	private static final List<Holiday> JOHN_HOLIDAYS = Arrays.asList(new Holiday[] {
+			new Holiday(JOHN, LocalDate.of(2017, Month.FEBRUARY, 1), LocalDate.of(2017, Month.FEBRUARY, 1)) });
 
-	private static final List<Holiday> ANNA_HOLIDAYS = Arrays.asList(new Holiday[]
-		{
-			new Holiday(ANNA, LocalDate.of(2017, Month.FEBRUARY, 10), LocalDate.of(2017, Month.FEBRUARY, 20))
-		}
-	);
+	private static final List<Holiday> ANNA_HOLIDAYS = Arrays.asList(new Holiday[] {
+			new Holiday(ANNA, LocalDate.of(2017, Month.FEBRUARY, 10), LocalDate.of(2017, Month.FEBRUARY, 20)) });
 
 	private static final List<Holiday> ROB_HOLIDAYS = new ArrayList<Holiday>() {
 	};
